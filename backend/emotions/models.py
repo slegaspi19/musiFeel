@@ -12,7 +12,7 @@ class Review(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
-    ordinal = models.IntegerField
+    ordinal = models.IntegerField()
     business = models.ManyToManyField('Business')
     
 class Business(models.Model):

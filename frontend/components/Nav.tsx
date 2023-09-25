@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
-const Nav = (props) => {
+const Nav = (props: any) => {
     const classes = useStyles();
     return (
         <>
