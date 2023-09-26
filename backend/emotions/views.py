@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from rest_framework import permissions
 from emotions.serializers import UserSerializer, GroupSerializer, ReviewSerializer, BusinessSerializer, CategorySerializer
 from emotions.models import Review, Business, Category
-
+from django_filters.rest_framework import DjangoFilterBackend
 
 # Create your views here.
 
@@ -30,4 +30,6 @@ class BusinessViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['slug']
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]

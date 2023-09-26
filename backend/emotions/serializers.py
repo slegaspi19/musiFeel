@@ -25,5 +25,6 @@ class BusinessSerializer(serializers.HyperlinkedModelSerializer):
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Category
+        depth = 1
         fields = '__all__'
 

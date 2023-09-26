@@ -12,6 +12,7 @@ class Review(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
+    slug = models.CharField(max_length=255, unique=True, blank=True, null=True)
     ordinal = models.IntegerField()
     business = models.ManyToManyField('Business')
     
@@ -30,6 +31,7 @@ class Business(models.Model):
 
     ]
     name = models.CharField(max_length=255)
+    slug = models.CharField(max_length=255, unique=True, blank=True, null=True)
     desc = models.TextField()
     price_range = models.CharField(max_length=10, choices=PRICE_CHOICES, default=MID)
     street_address = models.CharField(max_length=255)
@@ -37,7 +39,7 @@ class Business(models.Model):
     region = models.CharField(max_length=50)
     postal_code = models.CharField(max_length=50)
     country = models.CharField(max_length=50)
-    url = models.URLField(max_length=255)
+    website = models.URLField(max_length=255)
     phone = models.CharField(max_length=255)
     hours = models.CharField(max_length=255)
 
