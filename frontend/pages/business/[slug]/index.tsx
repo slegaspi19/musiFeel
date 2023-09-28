@@ -5,7 +5,7 @@ const BusinessPage = () => {
     return (
         
         <div>
-        
+            hello
         </div>
     );
 };
