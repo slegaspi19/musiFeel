@@ -9,6 +9,7 @@ const useStyles = makeStyles((theme) => ({
     root: {
         marginTop: '25px',
         maxWdith: '95vw',
+        padding: '0 25px',
     },
     subtitle: {
         color: 'grey',
