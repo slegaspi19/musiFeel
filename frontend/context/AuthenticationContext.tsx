@@ -2,7 +2,7 @@ import { createContext, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 
-const AuthenticationContext = createContext(null);
+const AuthenticationContext = createContext();
 
 export const AuthenticationProvider = ({children}: any) => {
     const [user, setUser] = useState(null);
@@ -12,12 +12,24 @@ export const AuthenticationProvider = ({children}: any) => {
     const router = useRouter();
 
     const login = async({username, password}: any) => {
-        console.log('login context');
-        console.log({username, password});
+        const config = {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            }
+        }
+
+        const body = {
+            username,
+            password,
+        }
+
+        const { data } = await axios.post('http://localhost:3000/api/login/', body, config);   
+        console.log(data);
     }
 
     return (
-        <AuthenticationContext.Provider value={{ user, accessToken, error, login }}>
+        <AuthenticationContext.Provider value={{ login }}>
             {children}
         </AuthenticationContext.Provider>
     )
