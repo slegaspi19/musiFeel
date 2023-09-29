@@ -1,8 +1,8 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 from rest_framework import permissions
-from rest_framework.generics import RetrieveAPIView
-from emotions.serializers import UserSerializer, GroupSerializer, ReviewReadSerializer, ReviewWriteSerializer, BusinessReadSerializer, BusinessWriteSerializer, CategoryReadSerializer, CategoryWriteSerializer
+from rest_framework.generics import RetrieveAPIView, CreateAPIView
+from emotions.serializers import UserSerializer, GroupSerializer, ReviewReadSerializer, ReviewWriteSerializer, BusinessReadSerializer, BusinessWriteSerializer, CategoryReadSerializer, CategoryWriteSerializer, RegisterUserSerializer
 from emotions.models import Review, Business, Category
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -49,3 +49,7 @@ class UserAPIView(RetrieveAPIView):
     serializer_class = UserSerializer
     def get_object(self):
         return self.request.user
+
+class RegisterUserAPIView(CreateAPIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = RegisterUserSerializer

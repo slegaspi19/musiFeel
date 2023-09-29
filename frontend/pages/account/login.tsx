@@ -2,8 +2,7 @@ import { useState, useContext } from 'react'
 import { Button, Card, CardContent, makeStyles, TextField, Typography } from '@material-ui/core'
 import Layout from '../../components/Layout'
 import AuthenticationContext from '../../context/AuthenticationContext'
-import axios from 'axios'
-import {useRouter} from 'next/router'
+import { useRouter } from 'next/router'
 import Link from 'next/link'
 
 const useStyles = makeStyles((theme) => ({
@@ -76,7 +75,7 @@ export default function LoginPage() {
       					</div>
 
       					<div className={classes.linkContainer}>
-      						<Link legacyBehavior href='account/register'>
+      						<Link legacyBehavior href='/account/register'>
       							<a className={classes.link}>Don't have an account? Sign Up</a>
       						</Link>
       					</div>

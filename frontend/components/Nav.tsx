@@ -4,6 +4,7 @@ import MenuIcon from '@material-ui/icons/Menu'
 import { AccountCircle, Home } from "@material-ui/icons";
 import { useRouter } from "next/router";
 import AuthenticationContext from "@/context/AuthenticationContext";
+import logout from "@/pages/api/logout";
 const useStyles = makeStyles((theme) => ({
     root: {
         flexGrow: 1,
@@ -24,13 +25,19 @@ const Nav = (props: any) => {
     const [toggle, setToggle] = useState(false);
     const router = useRouter();
 
-    const { user } = useContext(AuthenticationContext);
+    const { user, logout } = useContext(AuthenticationContext);
 
     const toggleDrawer = (value: any) => (event: any) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
             return;
         }
         setToggle(value);
+    }
+
+    const handleLogout = async (e: any) => {
+        e.preventDefault();
+        await logout();
+        router.push('/account/login')
     }
     return (
         <>
@@ -51,15 +58,21 @@ const Nav = (props: any) => {
                                     <ListItemText primary='Home' />
                                 </ListItem>
                                 { user ? (
-                                    <ListItem button onClick={() => router.push('/logout')}>
+                                    <ListItem button onClick={handleLogout}>
                                         <ListItemIcon><AccountCircle /></ListItemIcon>
-                                        <ListItemText primary='Sign Out' />
+                                        <ListItemText primary='Sign Out'/>
                                     </ListItem>
                                 ) : (
-                                    <ListItem button onClick={() => router.push('/')}>
-                                        <ListItemIcon><AccountCircle /></ListItemIcon>
-                                        <ListItemText primary='Signed In' />
-                                    </ListItem>
+                                    <>
+                                        <ListItem button onClick={() => router.push('/account/login')}>
+                                            <ListItemIcon><AccountCircle /></ListItemIcon>
+                                            <ListItemText primary='Sign In' />
+                                        </ListItem>
+                                        <ListItem button onClick={() => router.push('/account/register')}>
+                                            <ListItemIcon><AccountCircle /></ListItemIcon>
+                                            <ListItemText primary='Register' />
+                                        </ListItem>
+                                    </>
                                 )}
                             </List>
                         </div>
