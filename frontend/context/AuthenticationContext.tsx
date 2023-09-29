@@ -2,7 +2,7 @@ import { createContext, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 
-const AuthenticationContext = createContext();
+const AuthenticationContext = createContext(null as any);
 
 export const AuthenticationProvider = ({children}: any) => {
     const [user, setUser] = useState(null);
@@ -24,12 +24,34 @@ export const AuthenticationProvider = ({children}: any) => {
             password,
         }
 
-        const { data } = await axios.post('http://localhost:3000/api/login/', body, config);   
-        console.log(data);
+        try {
+            const { data: accessResponse } = await axios.post('http://localhost:3000/api/login/', body, config);
+    
+            if (accessResponse && accessResponse.user) {
+                setUser(accessResponse.user);
+            }
+    
+            if (accessResponse && accessResponse.access) {
+                setAccessToken(accessResponse.access);
+            }
+    
+            router.push('/');
+        } catch (error: any) {
+            if (error.response && error.response.data) {
+                setError(error.response.data.message);
+                return;
+            } else if (error.request) {
+                setError('Something went wrong');
+                return;
+            } else {
+                setError('Something went wrong');
+                return;
+            }
+        }
     }
 
     return (
-        <AuthenticationContext.Provider value={{ login }}>
+        <AuthenticationContext.Provider value={{ user, accessToken, error, login }}>
             {children}
         </AuthenticationContext.Provider>
     )

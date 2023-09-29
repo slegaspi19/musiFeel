@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { AppBar, Drawer, IconButton, List, ListItem, ListItemIcon, ListItemText, makeStyles, Toolbar, Typography } from '@material-ui/core'
 import MenuIcon from '@material-ui/icons/Menu'
-import { Home } from "@material-ui/icons";
+import { AccountCircle, Home } from "@material-ui/icons";
 import { useRouter } from "next/router";
+import AuthenticationContext from "@/context/AuthenticationContext";
 const useStyles = makeStyles((theme) => ({
     root: {
         flexGrow: 1,
@@ -23,7 +24,9 @@ const Nav = (props: any) => {
     const [toggle, setToggle] = useState(false);
     const router = useRouter();
 
-    const toggleDrawer = (value) => (event) => {
+    const { user } = useContext(AuthenticationContext);
+
+    const toggleDrawer = (value: any) => (event: any) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
             return;
         }
@@ -47,6 +50,17 @@ const Nav = (props: any) => {
                                     <ListItemIcon><Home /></ListItemIcon>
                                     <ListItemText primary='Home' />
                                 </ListItem>
+                                { user ? (
+                                    <ListItem button onClick={() => router.push('/logout')}>
+                                        <ListItemIcon><AccountCircle /></ListItemIcon>
+                                        <ListItemText primary='Sign Out' />
+                                    </ListItem>
+                                ) : (
+                                    <ListItem button onClick={() => router.push('/')}>
+                                        <ListItemIcon><AccountCircle /></ListItemIcon>
+                                        <ListItemText primary='Signed In' />
+                                    </ListItem>
+                                )}
                             </List>
                         </div>
                         </Drawer>

@@ -1,9 +1,10 @@
 import axios from "axios"
 var cookie = require('cookie')
 
-export default async (req, res) => {
+export default async (req: any, res: any) => {
     let accessToken = null;
-    console.log(req, res);
+    //change sec to true in prod
+
     if (req.method === 'POST') {
         const { username, password } = req.body;
 
@@ -22,6 +23,7 @@ export default async (req, res) => {
         try {
             const { data: accessResponse } = await axios.post('http://localhost:8000/api/token/', body, config);
             accessToken = accessResponse.access;
+        res.setHeader('Set-Cookie', cookie.serialize('refresh', accessResponse.refresh, {httpOnly: true, secure: false, sameSite: 'strict', maxAge: 60 * 60 * 24, path: '/'}))
         } catch (error: any) {
             if (error.response) {
                 console.error(error.response.data);
@@ -45,7 +47,6 @@ export default async (req, res) => {
             }
 
             const { data: userData } = await axios.get('http://localhost:8000/api/user/', userConfig);
-            console.log(userData);
             res.status(200).json({user: userData, access: accessToken})
         }
     } else {

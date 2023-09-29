@@ -52,11 +52,7 @@ export default function LoginPage() {
 
   const submitHandler = (e: any) => {
   	e.preventDefault();
-    if (login) {
-        login({username, password})
-    } else {
-        console.log("no login")
-    }
+  	login({username, password})
   }
 
   return (
