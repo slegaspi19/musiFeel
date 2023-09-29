@@ -17,7 +17,7 @@ export default function Home({categories}: any) {
         <Layout>
             <Grid container className={classes.root} spacing={3}>
                 { categories.map((category: any) => (
-                    <Grid item xs={12} md={4}>
+                    <Grid key={category.name} item xs={12} md={4}>
                         <Card>
                             <CardHeader
                                 avatar={

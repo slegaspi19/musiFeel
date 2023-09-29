@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 
@@ -7,9 +7,13 @@ const AuthenticationContext = createContext(null as any);
 export const AuthenticationProvider = ({children}: any) => {
     const [user, setUser] = useState(null);
     const [accessToken, setAccessToken] = useState(null);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState("");
 
     const router = useRouter();
+
+    useEffect(() => {
+        checkLoginStatus()
+    }, [])
 
     const login = async({username, password}: any) => {
         const config = {
@@ -99,6 +103,28 @@ export const AuthenticationProvider = ({children}: any) => {
             }
         }
     }
+
+	const checkLoginStatus = async () => {
+		try {
+			// api request to api/user in nextjs
+			const { data } = await axios.post('http://localhost:3000/api/user')
+
+			// set user and access token in state
+			setUser(data.user)
+			setAccessToken(data.access)
+		} catch(error: any) {
+			if (error.response & error.response.data) {
+		  		setError(error.response.data.message)
+		  		return      
+		    } else if (error.request) {
+			    setError('Something went wrong')
+			    return  
+		    } else {
+				setError('Something went wrong')
+				return
+		    }
+		}
+	}
 
     return (
         <AuthenticationContext.Provider value={{ user, accessToken, error, login, register, logout}}>
