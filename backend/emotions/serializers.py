@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from emotions.models import Review, Business, Category
+from emotions.models import Song, Review, Business, Category
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -94,18 +94,23 @@ class CategoryWriteSerializer(serializers.HyperlinkedModelSerializer):
         ]
 
 class RegisterUserSerializer(serializers.HyperlinkedModelSerializer):
-    def create(self, validated_data):
-        user = User.objects.create_user(
-            email=validated_data['email'],
-            username=validated_data['username'],
-            password=validated_data['password']
-        )
-        return user
+	def create(self, validated_data):
+		user = User.objects.create_user(
+			email = validated_data['email'],
+			username = validated_data['username'],
+			password = validated_data['password']
+		)
+		return user
+	class Meta:
+		model = User
+		fields = ['url', 'username', 'password', 'email', 'groups']
+          
+class SongWriteSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = User
+        model = Song
         fields = [
             'url',
-            'username',
-            'password',
-            'groups',
+            'title',
+            'artist',
+            'emotions',
         ]

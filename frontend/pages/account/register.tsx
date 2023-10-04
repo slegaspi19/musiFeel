@@ -1,8 +1,8 @@
 import Layout from '@/components/Layout';
 import AuthenticationContext from '@/context/AuthenticationContext';
-import { Button, Card, CardContent, TextField, Typography, makeStyles } from '@material-ui/core';
+import { Button, Card, CardContent, Snackbar, TextField, Typography, makeStyles } from '@material-ui/core';
 import Link from 'next/link';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -45,22 +45,40 @@ const RegisterPage = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [password2, setPassword2] = useState("");
+    const [open, setOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(null);
     
     const classes = useStyles();
 
-    const { register } = useContext(AuthenticationContext);
+    const { register, error, clearError } = useContext(AuthenticationContext);
 
     const submitHandler = (e: any) => {
         e.preventDefault();
-        if (password !== password2) {
-            console.error("Passwords do not match");
-            return;
-        }
-        register({ username, email, password })
+        register({ username, email, password, password2 })
+    }
+
+    const handleClose = (e: any) => {
+        setOpen(false);
     }
   
+    useEffect(() => {
+        if (error) {
+            setErrorMessage(error);
+            setOpen(true);
+            clearError();
+        }
+      }, [error])
+
     return (
     <Layout>
+        <Snackbar
+            anchorOrigin={{ vertical: 'top', horizontal:'center' }}
+            open={ open }
+            onClose={ handleClose }
+            autoHideDuration={ 6000 }
+            message={ errorMessage }
+            key={'top_center'}
+        />
         <div className={classes.root}>
             <div className={classes.form}>
                 <Typography variant='h3' className={classes.title}>Register</Typography>

@@ -2,9 +2,12 @@ from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.generics import RetrieveAPIView, CreateAPIView
-from emotions.serializers import UserSerializer, GroupSerializer, ReviewReadSerializer, ReviewWriteSerializer, BusinessReadSerializer, BusinessWriteSerializer, CategoryReadSerializer, CategoryWriteSerializer, RegisterUserSerializer
-from emotions.models import Review, Business, Category
+from emotions.serializers import UserSerializer, GroupSerializer, ReviewReadSerializer, ReviewWriteSerializer, BusinessReadSerializer, BusinessWriteSerializer, CategoryReadSerializer, CategoryWriteSerializer, RegisterUserSerializer, SongWriteSerializer
+from emotions.models import Review, Business, Category, Song
 from django_filters.rest_framework import DjangoFilterBackend
+
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 # Create your views here.
 
@@ -18,6 +21,15 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     permission_classes = [permissions.IsAuthenticated]
     
+class SongViewSet(viewsets.ModelViewSet):
+    queryset = Song.objects.all()
+    permission_classes = [permissions.AllowAny]
+    def get_serializer_class(self):
+        if self.request.method == 'PUT' or self.request.method == 'POST':
+            return SongWriteSerializer
+        # change eventually
+        return SongWriteSerializer
+
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     permission_classes = [permissions.AllowAny]
@@ -53,3 +65,4 @@ class UserAPIView(RetrieveAPIView):
 class RegisterUserAPIView(CreateAPIView):
     permission_classes = [permissions.AllowAny]
     serializer_class = RegisterUserSerializer
+
