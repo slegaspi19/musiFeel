@@ -1,60 +1,115 @@
-from django.contrib.auth.models import User, Group
-from rest_framework import viewsets
-from rest_framework import permissions
-from rest_framework.generics import RetrieveAPIView, CreateAPIView
-from emotions.serializers import UserSerializer, GroupSerializer, ReviewReadSerializer, ReviewWriteSerializer, BusinessReadSerializer, BusinessWriteSerializer, CategoryReadSerializer, CategoryWriteSerializer, RegisterUserSerializer, SongWriteSerializer
-from emotions.models import Review, Business, Category, Song
-from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.auth.models import User
+from django.http import JsonResponse
+
+from emotions.serializers import UserSerializer, RegisterUserSerializer, SongSerializer
+from emotions.models import Song
 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework import viewsets
+from rest_framework import permissions
+from rest_framework.generics import RetrieveAPIView, CreateAPIView
+from rest_framework.test import APIRequestFactory
+
+import os
+import json
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+import lyricsgenius as lg
+import re
+from transformers import pipeline
+import collections
+import pandas as pd
+
+spotify_client_id = os.environ['SPOTIPY_CLIENT_ID']
+spotify_secret = os.environ['SPOTIPY_CLIENT_SECRET']
+spotipy_redirect_uri = os.environ['SPOTIPY_REDIRECT_URI']
+genius_access_token = os.environ['GENIUS_ACCESS_TOKEN']
+user_id = 'spotify:user:22gothp7kyvmsh7ryebt7vjqq'
+
+sp = spotipy.Spotify(client_credentials_manager=SpotifyClientCredentials())
+ge = lg.Genius(genius_access_token)
+
+emotion = pipeline('sentiment-analysis', model='arpanghoshal/EmoRoBERTa')
+
+def get_emotion_label(text):
+    return(emotion(text)[0]['label'])
 
 # Create your views here.
+@api_view(['POST'])
+def test(request):
+    try:
+        spotify_playlist_id = request.data['link']
+        playlist = sp.user_playlist_tracks(user_id, spotify_playlist_id)
+
+        tracks = []
+        for item in playlist['items']:
+            track_id = item['track']['id']
+            string = (item['track']['name']).split("(", 1)
+            track_name = string[0]
+            track_artist = item['track']['artists'][0]['name']
+            track_id = item['track']['id']
+            tracks.append[(track_id, track_name, track_artist)]
+
+        for id, title, artist in tracks:
+            try:
+                song = ge.search_song(title, artist)
+                songLyrics = song.lyrics
+                modifiedSongLyrics =  re.sub('\[.+\]', '', songLyrics)
+                many_strings = re.split('\n', modifiedSongLyrics)
+                print("obtained lyrics")
+                
+                songDF = pd.DataFrame(many_strings)
+                songDF.rename(columns = {0:'text'}, inplace = True)
+                songDF['emotion'] = songDF['text'].apply(get_emotion_label)
+                print("obtained emotions")
+
+                songJSONstring = songDF.to_json()
+                songJSON = json.loads(songJSONstring)
+                songCounts = collections.Counter(songJSON['emotion'].values())
+                print("counter obtained")
+                
+                songDict = dict(songCounts)
+                data = {"id": id, "title": title, "artist": artist, "emotions": songDict}
+                serializer = SongSerializer(data=data)
+                if serializer.is_valid():
+                    serializer.save()
+                # factory = APIRequestFactory()
+                # req = factory.post('/api/add-song/', {'data': data})
+                # addSongs(req)
+            except Exception as e:
+                return JsonResponse({"error": str(e)}, status=400)
+        # data = json.dumps({"title": "bruh15", "artist": "CSHR", "emotions": {"data": "empty"}})
+        # print(type(data))
+        # factory = APIRequestFactory()
+        # req = factory.post('/api/add-song/', {'data': data})
+        # addSongs(req)
+        return Response({"names": track_names, "artists": track_artists})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
+@api_view(['GET'])
+def getSongs(request):
+    songs = Song.objects.all()
+    serializer = SongSerializer(songs, many=True)
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def addSongs(request):
+    if isinstance(request.data['data'], str):
+        data = json.loads(request.data['data'])
+    else:
+        data = request.data['data']
+
+    serializer = SongSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+    return Response(serializer.data)
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-class GroupViewSet(viewsets.ModelViewSet):
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    
-class SongViewSet(viewsets.ModelViewSet):
-    queryset = Song.objects.all()
-    permission_classes = [permissions.AllowAny]
-    def get_serializer_class(self):
-        if self.request.method == 'PUT' or self.request.method == 'POST':
-            return SongWriteSerializer
-        # change eventually
-        return SongWriteSerializer
-
-class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
-    permission_classes = [permissions.AllowAny]
-    def get_serializer_class(self):
-        if self.request.method == 'PUT' or self.request.method == 'POST':
-            return ReviewWriteSerializer
-        return ReviewReadSerializer
-    
-class BusinessViewSet(viewsets.ModelViewSet):
-    queryset = Business.objects.all()
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    def get_serializer_class(self):
-        if self.request.method == 'PUT' or self.request.method == 'POST':
-            return BusinessWriteSerializer
-        return BusinessReadSerializer
-
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['slug']
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    def get_serializer_class(self):
-        if self.request.method == 'PUT' or self.request.method == 'POST':
-            return CategoryWriteSerializer
-        return CategoryReadSerializer
 
 class UserAPIView(RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
