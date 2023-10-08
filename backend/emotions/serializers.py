@@ -24,7 +24,7 @@ class PlaylistSerializer(serializers.HyperlinkedModelSerializer):
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ['url', 'username', 'email', 'groups']
+        fields = ['username', 'email']
 
 class RegisterUserSerializer(serializers.HyperlinkedModelSerializer):
 	def create(self, validated_data):

@@ -39,11 +39,9 @@ if debug:
 # Create your views here.
 @api_view(['POST'])
 def test(request):
-    print("hi")
     try:
         spotify_playlist_id = request.data['link']
         playlist = sp.user_playlist_tracks(user_id, spotify_playlist_id)
-        print("playlist obtained")
         tracks = []
         for item in playlist['items']:
             track_id = item['track']['id']
@@ -59,7 +57,6 @@ def test(request):
                 song = Song.objects.filter(id=id)
                 for key in song[0].emotions:
                     playlistDDict[key] += song[0].emotions[key]
-                print('in db and added')
                 continue
             try:
                 if debug:
@@ -67,18 +64,15 @@ def test(request):
                     songLyrics = song.lyrics
                     modifiedSongLyrics =  re.sub('\[.+\]', '', songLyrics)
                     many_strings = re.split('\n', modifiedSongLyrics)
-                    print("obtained lyrics")
                     
                     songDF = pd.DataFrame(many_strings)
                     songDF.rename(columns = {0:'text'}, inplace = True)
                     songDF['emotion'] = songDF['text'].apply(get_emotion_label)
-                    print("obtained emotions")
 
                     songJSONstring = songDF.to_json()
                     songJSON = json.loads(songJSONstring)
                     songCounts = collections.Counter(songJSON['emotion'].values())
                     songDict = dict(songCounts)
-                    print("dict obtained")
 
                     for key in songDict:
                         playlistDDict[key] += songDict[key]
@@ -91,33 +85,16 @@ def test(request):
                 continue
             except Exception as e:
                 return JsonResponse({"error": str(e)}, status=400)
+            
         songs = [song[0] for song in tracks]
-        # print("tracks")
-        songsJSON = {"songs": json.dumps(songs)}
-        # print("songsJSON")
-        # print(songsJSON)
         playlistDict = dict(playlistDDict)
 
-        print("playlistDict")
-        playlistData = {"id": spotify_playlist_id}
-        # print(playlistData)
-        # print(type(playlistData))
-        # print(playlistData['id'])
-        # print(type(playlistData['id']))
-        # print(playlistData['songs'])
-        # print(type(playlistData['songs']))
-        # print(playlistData['emotions'])
-        # print(type(playlistData['emotions']))
-        playlistSongs = {"songs": songs}
-        print("playlistData")
         data = {"id": spotify_playlist_id + "7", "songs": songs, "emotions": playlistDict}
-        print(data)
+
         serializerPlaylist = PlaylistSerializer(data=data)
-    
-        print("serializer")
         if serializerPlaylist.is_valid():
             serializerPlaylist.save()
-        return Response(playlistData)
+        return Response(data)
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
 
@@ -135,18 +112,10 @@ def getSongs(request):
 
 @api_view(['POST'])
 def addSongs(request):
-    # {"data": {"title": "hi"}}
     if isinstance(request.data['data'], str):
         data = json.loads(request.data['data'])
     else:
         data = request.data['data']
-    print(data)
-    print(type(data))
-    print(data['title'])
-    print(type(data['title']))
-    print(data['emotions'])
-    print(type(data['emotions']))
-
     serializer = SongSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
@@ -158,7 +127,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 class UserAPIView(RetrieveAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     serializer_class = UserSerializer
     def get_object(self):
         return self.request.user

@@ -78,7 +78,7 @@ const Nav = (props: any) => {
                         </div>
                         </Drawer>
                     <Typography variant='h6' className={classes.title}>
-                        Local Reviews 123
+                        MusiFeel
                     </Typography>
                 </Toolbar>
             </AppBar>
