@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from emotions.models import Song
+from emotions.models import Song, Playlist
 
 class SongSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -9,6 +9,15 @@ class SongSerializer(serializers.HyperlinkedModelSerializer):
             'id',
             'title',
             'artist',
+            'emotions',
+        ]
+
+class PlaylistSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Playlist
+        fields = [
+            'id',
+            'songs',
             'emotions',
         ]
 
