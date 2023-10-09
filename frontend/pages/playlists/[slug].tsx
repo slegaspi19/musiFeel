@@ -22,7 +22,9 @@ const Playlist = ({slug, playlist}: any) => {
 
     const classes = useStyles();
 
+    
     useEffect(() => {
+        delete playlist.emotions.neutral;
         if (chartInstance.current) {
             chartInstance.current.destroy()
         }
