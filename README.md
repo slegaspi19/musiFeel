@@ -11,7 +11,7 @@ A visualizer for the emotions of music built on NextJS, Django, and Tensorflow.
 
 ## Overview
 
-MusiFeel is a data visualization tool that leverages AI to classify the lyrics of music playlists into a range of different emotinos. By entering a link to a playlist, users can access a chart of the emotions. MusiFeel aims to provide users with yet another way to find new music, matching up their moods with others'.
+MusiFeel is a data visualization tool that leverages AI to classify the lyrics of music playlists into a range of different emotions. By entering a link to a playlist, users can access a chart of the emotions. MusiFeel aims to provide users with yet another way to find new music, matching up their moods with others'.
 
 ## Solution Design
 
