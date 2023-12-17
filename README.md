@@ -1,6 +1,6 @@
 # MusiFeel
 
-A visualizer for the emotions of music built on NextJS, Django, and Tensorflow.
+A visualizer for the emotions of music built on NextJS, Django, and Tensorflow. Made by Shamir Legaspi.
 
 <figure>
     <img src="./images/TestPlaylist.png" alt="Early Stage Visualization">
